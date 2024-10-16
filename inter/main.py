@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 
 # Load your trained model
-@st.cache(allow_output_mutation=True)
+@st.cache_resource
 def load_model():
     model = tf.keras.models.load_model('/home/user/ajay das/mini-project/model/my_model1.h5')
     return model
@@ -26,7 +26,9 @@ if uploaded_file is not None:
     # Preprocess the image to match the model input requirements
     def preprocess_image(image):
         image = image.resize((64, 64))  # Adjust size based on your model's input
-        image = np.array(image) / 255.0  # Normalize if necessary
+        image = np.array(image) / 255.0  # Normalize the image
+        if len(image.shape) == 2:  # If grayscale, convert to RGB
+            image = np.stack((image,)*3, axis=-1)
         image = np.expand_dims(image, axis=0)  # Add batch dimension
         return image
 
@@ -38,5 +40,5 @@ if uploaded_file is not None:
         class_names = ['Star', 'Galaxy']
         predicted_class = class_names[np.argmax(prediction)]
 
-        st.write(f"Prediction: **{predicted_class}**")
-        st.write(f"Confidence: **{np.max(prediction) * 100:.2f}%**")
+        st.write(f"**Prediction:** {predicted_class}")
+        st.write(f"**Confidence:** {np.max(prediction) * 100:.2f}%")
