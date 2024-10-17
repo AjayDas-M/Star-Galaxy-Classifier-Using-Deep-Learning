@@ -1,35 +1,62 @@
 import streamlit as st
-from tensorflow.keras.models import load_model
 from PIL import Image
 import numpy as np
+import tensorflow as tf
+import random
 
-# Streamlit UI
+# Load your pre-trained model
+model = tf.keras.models.load_model('/home/user/ajay das/mini-project/model/mymodel.h5')
+
+# Define a function to preprocess the image
+def preprocess_image(image):
+    image = image.resize((64, 64))  # Resize to the input size of your model
+    image = np.array(image) / 255.0  # Normalize the image
+    return np.expand_dims(image, axis=0)  # Add batch dimension
+
+# Define a function for augmenting the image
+def augment_image(image):
+    # Random rotation
+    if random.random() < 0.5:
+        image = image.rotate(random.randint(-20, 20))
+    
+    # Random zoom
+    if random.random() < 0.5:
+        zoom_factor = random.uniform(0.85, 1.15)
+        image = image.resize((int(64 * zoom_factor), int(64 * zoom_factor)))
+
+    # Random horizontal flip
+    if random.random() < 0.5:
+        image = image.transpose(Image.FLIP_LEFT_RIGHT)
+
+    # Convert back to (64, 64) after augmentation if necessary
+    return image.resize((64, 64))
+
+# Title of the app
 st.title("Star-Galaxy Classification")
 
 # File uploader
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
+uploaded_file = st.file_uploader("Upload an image of a star or galaxy", type=["jpg", "jpeg", "png"])
 
-# If an image is uploaded
 if uploaded_file is not None:
-    # Display the uploaded image
+    # Display the image
     image = Image.open(uploaded_file)
     st.image(image, caption='Uploaded Image', use_column_width=True)
-    
-    # Convert the image to a numpy array without additional preprocessing
-    image_array = np.array(image)
-    
-    # Expand dimensions to match the input shape of the model (1, height, width, channels)
-    processed_image = np.expand_dims(image_array, axis=0)
-    
-    # Load the model (adjust the path to your model file)
-    model = load_model("/home/user/ajay das/mini-project/model/mymodel.h5")
-    
-    # Make the prediction
-    try:
-        prediction = model.predict(processed_image)
-        # Assume the model outputs a probability for each class: [star_prob, galaxy_prob]
-        class_names = ['Star', 'Galaxy']
-        predicted_class = class_names[np.argmax(prediction)]
-        confidence = np.max(prediction) * 100
+
+    # Optionally augment the image
+    augmented_image = augment_image(image)
+
+    # Preprocess the image
+    processed_image = preprocess_image(augmented_image)
+
+    # Classify the image
+    if st.button("Classify"):
+        predictions = model.predict(processed_image)
+        class_index = np.argmax(predictions, axis=1)
         
-        st.success
+        # Display the result (modify according to your classes)
+        if class_index == 0:
+            st.write("Prediction: Star")
+        else:
+            st.write("Prediction: Galaxy")
+
+# Add additional features or visualizations as needed
