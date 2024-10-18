@@ -5,7 +5,7 @@ import tensorflow as tf
 import random
 
 # Load your pre-trained model
-model = tf.keras.models.load_model('/home/user/ajay das/mini-project/model/mymodel.h5')
+model = tf.keras.models.load_model('C:/Users/user/Documents/mini-project/model/star_galaxy_classification_model.h5')
 
 # Define a function to preprocess the image
 def preprocess_image(image):
