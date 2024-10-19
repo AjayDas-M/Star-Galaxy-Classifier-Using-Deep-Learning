@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 app = Flask(__name__)
-model = tf.keras.models.load_model('star_galaxy_classification_model.h5')
+model = tf.keras.models.load_model('star_galaxy_classifier.h5')
 
 def preprocess_image(image):
     image = image.resize((64, 64))  # Resize to match the model input size
