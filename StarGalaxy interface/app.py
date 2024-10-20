@@ -28,7 +28,7 @@ def upload():
     file.save(img_path)
     
     # Preprocess the image
-    img = Image.open(img_path).resize((224, 224))  # Resize to match model input
+    img = Image.open(img_path).resize((64, 64))  # Resize to match model input
     img_array = np.array(img) / 255.0  # Normalize the image
     img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
     
